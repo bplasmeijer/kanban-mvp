@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+// Use Vite dev server proxy by default in dev; allow overriding via env
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 export async function fetchBoard() {
   const r = await fetch(`${API_BASE}/board`)

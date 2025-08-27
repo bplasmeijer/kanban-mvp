@@ -1,33 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import { DragDropContext } from '@hello-pangea/dnd'
 import { fetchBoard, createTask, updateTask } from './api'
+import Column from './components/Column'
+import Header from './components/Header'
 
 const COLUMN_ORDER = ['todo', 'inprogress', 'done']
-
-function Column({ column, tasks }) {
-  return (
-    <div className="column">
-      <h3>{column.name}</h3>
-      <Droppable droppableId={column.id}>
-        {(provided) => (
-          <div className="task-list" ref={provided.innerRef} {...provided.droppableProps}>
-            {tasks.sort((a, b) => a.order - b.order).map((t, idx) => (
-              <Draggable draggableId={t.id} index={idx} key={t.id}>
-                {(prov) => (
-                  <div className="task" ref={prov.innerRef} {...prov.draggableProps} {...prov.dragHandleProps}>
-                    <div className="task-title">{t.title}</div>
-                    {t.description && <div className="task-desc">{t.description}</div>}
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </div>
-  )
-}
 
 export default function App() {
   const [board, setBoard] = useState(null)
@@ -99,22 +76,17 @@ export default function App() {
   const tasksByColumn = (colId) => board.tasks.filter(t => t.column_id === colId)
 
   return (
-    <div className="container">
-      <header>
-        <h1>Kanban Board</h1>
-        <form onSubmit={onAddTask} className="add-form">
-          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add task to Todo" />
-          <button>Add</button>
-        </form>
-        {error && <div className="error">{error}</div>}
-      </header>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="board">
-          {board.columns.sort((a, b) => a.position - b.position).map(col => (
-            <Column key={col.id} column={col} tasks={tasksByColumn(col.id)} />
-          ))}
-        </div>
-      </DragDropContext>
-    </div>
+    <Fragment>
+      <div className="container">
+        <Header newTitle={newTitle} setNewTitle={setNewTitle} onAddTask={onAddTask} error={error} />
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="board">
+            {board.columns.sort((a, b) => a.position - b.position).map(col => (
+              <Column key={col.id} column={col} tasks={tasksByColumn(col.id)} />
+            ))}
+          </div>
+        </DragDropContext>
+      </div>
+    </Fragment>
   )
 }
